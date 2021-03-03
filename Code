@@ -1,0 +1,123 @@
+<Before Eval>
+if (target.isEnemy()) {
+  var id = target._enemyId;
+  $gameSystem.addHpGaugeEnemy(id);
+
+  var text = '\\msgposy[640]' + '\\fs[24] ' + '\\msgrows[20] ' + target.name() + '\\fr' + '\n';
+  text += '\\px[100]\\c[3]HP:\\c[0] ' + target.hp;
+  text += '/' + target.mhp;
+  text += '\\px[400]\\c[3]MP:\\c[0] ' + target.mp;
+  text += '/' + target.mmp;
+  text += '\\px[700]\\c[3]TP:\\c[0] ' + target.tp;
+  text += '\n';
+  text += '\\px[100]\\c[3]Attack:\\c[0] ' + target.atk;
+  text += '\\px[400]\\c[3]Magic:\\c[0] ' + target.mat;
+  text += '\\px[700]\\c[3]Speed:\\c[0] ' + target.agi;
+  text += '\n';
+  text += '\\px[100]\\c[3]Defense:\\c[0] ' + target.def;
+  text += '\\px[400]\\c[3]Magic Defense:\\c[0] ' + target.mdf;
+  text += '\\px[700]\\c[3]Luck:\\c[0] ' + target.luk;
+  text += '\n';
+  text += '\\px[30]\\c[25]Physical Damage Effectiveness:\\c[0] ' + '\\epdr[1]';
+  text += '\n';
+  text += '\\px[30]\\c[25]Magical Damage Effectiveness:\\c[0] ' + '\\emdr[1]';
+  text += '\n';
+  $gameMessage.add(text);
+
+  var text2 = '\\fs[24] ' + '\\c[14]Elements\\c[0]' + '\\fr' + '\n';
+  var weakness = '';
+  var resist = '';
+  var immune = '';
+  var absorb = '';
+  var elements = $dataSystem.elements;
+  for (var i = 1; i < elements.length; ++i) {
+    var name = elements[i];
+    var rate = target.elementRate(i);
+    if (rate > 1) {
+      weakness += name + ' ';
+    } else if (rate < 0) {
+      absorb += name + ' ';
+    } else if (rate === 0) {
+      immune += name + ' ';
+    } else if (rate < 1) {
+      resist += name + ' ';
+    }
+  }
+  if (weakness === '') weakness = 'None';
+  if (resist === '') resist = 'None';
+  if (immune === '') immune = 'None';
+  if (absorb === '') absorb = 'None';
+  weakness = '\\c[4]Weakness:\\c[0] ' + '\\fs[18]' + weakness + '\\fr' + '\n';
+  resist = '\\c[4]Resist:\\c[0] ' + '\\fs[18]' + resist + '\\fr' + '\n';
+  immune = '\\c[4]Immune:\\c[0] ' + '\\fs[18]' + immune + '\\fr' + '\n';
+  absorb = '\\c[4]Absorb:\\c[0] ' + '\\fs[18]' + absorb + '\\fr';
+  text = text2 + weakness + resist + immune + absorb + '\n';
+  $gameMessage.add(text);
+
+  var text3 = '\\fs[24] ' + '\\c[30]States\\c[0]' + '\\fr' + '\n';
+  var states = $dataStates;
+  var stateRate = new Map();
+  var stateImunity = new Set();
+  var stateIdInitial = 1;
+    for (var state = stateIdInitial; state < states.length; state++) {
+      var rate = target.stateRate(state);
+      if(rate != 1 && !stateImunity.has(state)) {
+         stateRate.set(state, rate);
+      }
+  }
+  var stateImunityText = '';
+  var stateResistText = '';
+stateRate.forEach(function(rate, state) {
+  if( rate === 0) {
+    stateImunityText += "\\IT[" + state + "]" + ' ';
+  } else if ( rate < 1) {
+    stateResistText += "\\IT[" + state + "]" + ' ';
+  }
+}, stateRate);
+  if (stateResistText === '') stateResistText = 'None';
+  if (stateImunityText === '') stateImunityText = 'None';
+  stateResistText = '\\c[2]Resistance:\\c[0] ' + '\\fs[18]' + stateResistText + '\\fr' + '\n';
+  stateImunityText = '\\c[2]Immunity:\\c[0] ' + '\\fs[18]' + stateImunityText + '\\fr';
+  text = text3 + stateResistText + stateImunityText + '\n';
+  $gameMessage.add(text);
+
+  var text4 = '\\fs[24] ' + '\\c[8]Additional Information\\c[0]' + '\\fr' + '\n';
+  var infoText = '';
+  var id = target._enemyId;
+    if( id === 1) {
+      infoText = "It heals its HP with 30% of each damage dealt to a target.";
+    } else if ( id === 2) {
+      infoText = "This enemy doesn't have any additional information.";
+    } else if ( id === 3) {
+      infoText = "This enemy doesn't have any additional information.";
+    } else if ( id === 4) {
+      infoText = "It has 25% chance to afflict \\i[2]\\c[1]Poison\c[0] when attacking normally.";
+    } else if ( id === 5) {
+      infoText = "It can use magic abilities with elements like \\i[161]\\c[2]Fire\\c[0] and it can heal the HP gradually with \\i[160]\\c[3]Regen\\c[0]." + '\n' + "Pay attention to its ability called \\c[2]Critical Attack\\c[0]!";
+    } else if ( id === 6) {
+      infoText = "It can use magic abilities that has 30% chance to afflict \\i[6]\\c[1]Confuse\\c[0] or deal thunder element damage with \\i[161]\\c[2]Thunder\\c[0] and it can heal the" + '\n' + "HP with \\i[160]\\c[3]Cure\\c[0]." + '\n' + "Pay attention to its ability called \\c[2]Critical Attack\\c[0]!";
+    } else if ( id === 7) {
+      infoText = "It can use magic abilities that has 30% chance to afflict \\i[8]\\c[1]Sleep\\c[0] or deal water element damage with \\i[161]\\c[2]Water\\c[0]." + '\n' + "Pay attention to its ability called \\c[2]Critical Attack\\c[0]!";
+    } else if ( id === 8) {
+      infoText = "It can use magic abilities with elements like \\i[161]\\c[2]Blizzard\\c[0]." + '\n' + "Pay attention to its ability called \\c[2]Magic Stick\\c[0] that has 100% chance to afflict \\i[2052]\\c[1]Sap\\c[0]!";
+    } else if ( id === 9) {
+      infoText = "It can use magic abilities that drains the target's HP or MP with \\i[161]\\c[2]Drain\\c[0] (dark element damage) and \\i[161]\\c[2]Osmose\\c[0]." + '\n' + "It can afflict \\i[3]\\c[1]Blind\\c[0] with the magic ability \\i[161]\\c[2]Blind\\c[0] or when attacking normally with 25% chance." + '\n' + "Pay attention to its ability called \\c[2]Magic Stick\\c[0] that has 100% chance to afflict \\i[2052]\\c[1]Sap\\c[0]!";
+    } else if ( id === 10) {
+      infoText = "In addition to the basic attack, it can use \\i[161]\\c[2]Blizzard\\c[0] or \\c[2]Critical Attack\\c[0] too.";
+    } else if ( id === 11) {
+      infoText = "It can use magic abilities that has 30% chance to afflict \\i[2]\\c[1]Poison\\c[0]." + '\n' + "It has 25% chance to afflict \\i[5]\\c[1]Berserk\\c[0] when attacking normally.";
+    } else if ( id === 12) {
+      infoText = "This enemy doesn't have any additional information.";
+    } else if ( id === 13) {
+      infoText = "This enemy doesn't have any additional information.";
+    } else if ( id === 139) {
+      infoText = "Noel has three Phases during the battle and you need to pay attention to his 12 different gifts with different effects, except during the Phase 3." + '\n' + "He can use abilities that uses TP, such as \\i[1659]\\c[2]Cold Fire Balls\\c[0] (only Phase 3) and \\i[1672]\\c[2]Surprise Bag\\c[0], with 25 TP and 100 TP respectively." + '\n' + "Keep an eye on his HP, as \\c[4]Phase 2\\c[0] starts with less than \\c[4]70% HP\\c[0] and \\c[4]Phase 3\\c[0] starts with less than \\c[4]40% HP\\c[2]." + '\n' + "Noel uses \\i[1676]\\c[3]Candle Power\\c[0] in the beginning of Phase 2 and Noel himself uses \\i[1647]\\c[3]Protective Lights\\c[0], which is recommended to protect yourself." + '\n' + "However, he has special abilities with some effects on the 6th turn and every 6th turn after it, so prepare your team to defeat him!";
+    }
+  text = text4 + infoText;
+  $gameMessage.add(text);
+}
+</Before Eval>
+
+<After Eval>
+text += '\\msgrows[4]' + '\\msgposy[auto]';
+</After Eval>
